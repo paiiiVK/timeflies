@@ -3,36 +3,42 @@
 <head>
   <title>Time</title>
 
+  <!-- 🔥 Font -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;800&display=swap" rel="stylesheet">
+
   <style>
     body {
       background: black;
       color: white;
-      font-family: Arial, Helvetica, sans-serif;
+      font-family: 'Inter', sans-serif;
       display: flex;
       justify-content: center;
       align-items: center;
       height: 100vh;
       margin: 0;
-      overflow: hidden;
     }
 
     #text {
-      font-size: 38px;
+      font-size: 36px;
       text-align: center;
       max-width: 900px;
-      line-height: 1.5;
+      line-height: 1.6;
+      letter-spacing: 0.5px;
+      font-weight: 300;
     }
 
     .statement {
-      font-size: 56px;
-      font-weight: 700;
+      font-size: 64px;
+      font-weight: 800;
       display: flex;
       flex-wrap: wrap;
       justify-content: center;
+      letter-spacing: 1px;
+      text-transform: lowercase;
     }
 
     .word {
-      margin: 5px 10px;
+      margin: 6px 10px;
       opacity: 0;
       transform: translateY(-80px);
       animation: drop 0.5s ease forwards;
@@ -60,7 +66,6 @@ const sentences = [
   "du gefüttert wirst."
 ];
 
-// 👉 EIN Satz → Wörter einzeln
 const statementWords = [
   "man", "vergisst", "viel", "zu", "leicht,",
   "wie", "schnell", "die", "zeit", "vergeht,",
@@ -88,7 +93,6 @@ function typeLoop() {
 
   document.getElementById("text").innerText = fullText.substring(0, j);
 
-  // ⚡ SCHNELL
   let speed = isDeleting ? 15 : 30;
 
   if (!isDeleting && j === fullText.length) {
@@ -120,10 +124,9 @@ function showStatement() {
       span.className = "word";
       span.innerText = word;
       container.appendChild(span);
-    }, index * 400); // 🧠 langsamer Drop
+    }, index * 400);
   });
 
-  // ⏸️ LANGE GENUG LESEN LASSEN
   setTimeout(() => {
     hardReset();
   }, statementWords.length * 400 + 4000);
@@ -132,7 +135,6 @@ function showStatement() {
 function hardReset() {
   const container = document.getElementById("text");
 
-  // 💥 HARTE CUT → schwarz
   container.innerHTML = "";
   container.className = "";
 
