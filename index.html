@@ -1,0 +1,105 @@
+<body>
+
+<div id="board"></div>
+
+<style>
+  body {
+    background: black;
+    color: white;
+    font-family: monospace;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+  }
+
+  #board {
+    font-size: 50px;
+    letter-spacing: 3px;
+  }
+
+  .letter {
+    display: inline-block;
+    transition: transform 0.2s, opacity 0.2s;
+  }
+
+  .flip {
+    transform: rotateX(90deg);
+    opacity: 0;
+  }
+</style>
+
+<script>
+const sentences = [
+  "du nochmal getragen werden willst.",
+  "du gelernte Wörter falsch aussprichst.",
+  "du dir eine Gutenachtgeschichte wünschst.",
+  "du zur Schule gebracht werden willst.",
+  "du gefüttert werden willst."
+];
+
+const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
+
+let current = "";
+let index = 0;
+
+function randomChar() {
+  return chars[Math.floor(Math.random() * chars.length)];
+}
+
+function createBoard(text) {
+  const board = document.getElementById("board");
+  board.innerHTML = "";
+
+  text.split("").forEach(char => {
+    const span = document.createElement("span");
+    span.className = "letter";
+    span.innerText = char;
+    board.appendChild(span);
+  });
+}
+
+function flipToText(newText) {
+  const board = document.getElementById("board");
+  const letters = board.children;
+
+  for (let i = 0; i < newText.length; i++) {
+    setTimeout(() => {
+      let span = letters[i];
+
+      if (!span) {
+        span = document.createElement("span");
+        span.className = "letter";
+        board.appendChild(span);
+      }
+
+      span.classList.add("flip");
+
+      setTimeout(() => {
+        let cycles = 0;
+
+        let interval = setInterval(() => {
+          span.innerText = randomChar();
+          cycles++;
+
+          if (cycles > 5) {
+            clearInterval(interval);
+            span.innerText = newText[i];
+            span.classList.remove("flip");
+          }
+        }, 30);
+
+      }, 100);
+
+    }, i * 80);
+  }
+}
+
+function loop() {
+  let next = sentences[index];
+  flipToText(next);
+
+  index = (index + 1) % sentences.length;
+
+  setTimeout(loop, 3000);
+}
