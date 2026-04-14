@@ -13,52 +13,38 @@
       align-items: center;
       height: 100vh;
       margin: 0;
-      overflow: hidden;
     }
 
     #text {
-      font-size: 42px;
       text-align: center;
       max-width: 900px;
-      line-height: 1.4;
-      letter-spacing: 1px;
-      transition: all 0.6s ease;
+      line-height: 1.5;
     }
 
-    .fade-out {
-      opacity: 0;
-      filter: blur(10px);
-      transform: scale(0.95);
+    .typing {
+      font-size: 38px;
     }
 
-    .fade-in {
-      opacity: 1;
-      filter: blur(0);
-      transform: scale(1);
-    }
-
-    .statement-line {
-      display: block;
-      font-size: 60px;
+    .statement {
+      font-size: 54px;
       font-weight: 700;
-      margin: 15px 0;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: rise 0.8s ease forwards;
     }
 
-    @keyframes rise {
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
+    .line {
+      opacity: 0;
+      transition: opacity 1s ease;
+      margin: 10px 0;
+    }
+
+    .show {
+      opacity: 1;
     }
   </style>
 </head>
 
 <body>
 
-<div id="text" class="fade-in"></div>
+<div id="text" class="typing"></div>
 
 <script>
 const sentences = [
@@ -94,14 +80,14 @@ function typeLoop() {
   if (j < 0) j = 0;
   if (j > fullText.length) j = fullText.length;
 
-  const container = document.getElementById("text");
-  container.innerText = fullText.substring(0, j);
+  document.getElementById("text").innerText = fullText.substring(0, j);
 
-  let speed = isDeleting ? 25 : 45;
+  // ⚡ DEUTLICH SCHNELLER
+  let speed = isDeleting ? 20 : 35;
 
   if (!isDeleting && j === fullText.length) {
     isDeleting = true;
-    return setTimeout(typeLoop, 600);
+    return setTimeout(typeLoop, 500);
   }
 
   if (isDeleting && j === 0) {
@@ -109,59 +95,41 @@ function typeLoop() {
     i++;
 
     if (i >= sentences.length) {
-      mode = "transition";
-      return transitionToStatement();
+      mode = "statement";
+      return setTimeout(showStatement, 600);
     }
   }
 
   setTimeout(typeLoop, speed);
 }
 
-function transitionToStatement() {
+function showStatement() {
   const container = document.getElementById("text");
-
-  // 🎬 Fade + Blur OUT
-  container.classList.remove("fade-in");
-  container.classList.add("fade-out");
-
-  setTimeout(() => {
-    container.innerHTML = "";
-    startStatement();
-  }, 600);
-}
-
-function startStatement() {
-  const container = document.getElementById("text");
-
-  container.classList.remove("fade-out");
-  container.classList.add("fade-in");
+  container.className = "statement";
+  container.innerHTML = "";
 
   statement.forEach((line, index) => {
+    const div = document.createElement("div");
+    div.className = "line";
+    div.innerText = line;
+    container.appendChild(div);
+
+    // 🧠 LANGSAM + SAUBER
     setTimeout(() => {
-      const div = document.createElement("div");
-      div.className = "statement-line";
-      div.innerText = line;
-      container.appendChild(div);
-    }, index * 1000);
+      div.classList.add("show");
+    }, index * 1200);
   });
 
-  // 🔁 Zurück zum Anfang
+  // Pause danach
   setTimeout(() => {
-    container.classList.remove("fade-in");
-    container.classList.add("fade-out");
-
-    setTimeout(() => {
-      container.innerHTML = "";
-      i = 0;
-      j = 0;
-      isDeleting = false;
-      mode = "typing";
-      container.classList.remove("fade-out");
-      container.classList.add("fade-in");
-      typeLoop();
-    }, 600);
-
-  }, statement.length * 1000 + 3000);
+    container.className = "typing";
+    container.innerHTML = "";
+    i = 0;
+    j = 0;
+    isDeleting = false;
+    mode = "typing";
+    typeLoop();
+  }, statement.length * 1200 + 3000);
 }
 
 // Start
