@@ -2,6 +2,7 @@
 <html>
 <head>
   <title>Time</title>
+
   <style>
     body {
       background: black;
@@ -11,15 +12,18 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      margin: 0;
     }
 
     #text {
-      font-size: 40px;
+      font-size: 42px;
       text-align: center;
       max-width: 800px;
+      line-height: 1.4;
     }
   </style>
 </head>
+
 <body>
 
 <div id="text"></div>
@@ -35,32 +39,45 @@ const sentences = [
 
 let i = 0;
 let j = 0;
-let currentText = "";
 let isDeleting = false;
 
 function type() {
-  let fullText = sentences[i];
+  const fullText = sentences[i];
 
+  // Buchstaben hinzufügen oder entfernen
   if (isDeleting) {
-    currentText = fullText.substring(0, j--);
+    j--;
   } else {
-    currentText = fullText.substring(0, j++);
+    j++;
   }
+
+  // Grenzen fixen (wichtig!)
+  if (j < 0) j = 0;
+  if (j > fullText.length) j = fullText.length;
+
+  const currentText = fullText.substring(0, j);
 
   document.getElementById("text").innerText = currentText;
 
-  let speed = isDeleting ? 40 : 80;
+  let speed = isDeleting ? 40 : 70;
 
+  // Pause am Ende
   if (!isDeleting && j === fullText.length) {
-    setTimeout(() => isDeleting = true, 1000);
-  } else if (isDeleting && j === 0) {
+    speed = 1200;
+    isDeleting = true;
+  }
+
+  // Wechsel zum nächsten Satz
+  if (isDeleting && j === 0) {
     isDeleting = false;
     i = (i + 1) % sentences.length;
+    speed = 300;
   }
 
   setTimeout(type, speed);
 }
 
+// Start
 type();
 </script>
 
