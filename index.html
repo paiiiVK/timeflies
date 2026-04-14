@@ -1,105 +1,68 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Time</title>
+  <style>
+    body {
+      background: black;
+      color: white;
+      font-family: monospace;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+
+    #text {
+      font-size: 40px;
+      text-align: center;
+      max-width: 800px;
+    }
+  </style>
+</head>
 <body>
 
-<div id="board"></div>
-
-<style>
-  body {
-    background: black;
-    color: white;
-    font-family: monospace;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-  }
-
-  #board {
-    font-size: 50px;
-    letter-spacing: 3px;
-  }
-
-  .letter {
-    display: inline-block;
-    transition: transform 0.2s, opacity 0.2s;
-  }
-
-  .flip {
-    transform: rotateX(90deg);
-    opacity: 0;
-  }
-</style>
+<div id="text"></div>
 
 <script>
 const sentences = [
   "du nochmal getragen werden willst.",
   "du gelernte Wörter falsch aussprichst.",
-  "du dir eine Gutenachtgeschichte wünschst.",
-  "du zur Schule gebracht werden willst.",
-  "du gefüttert werden willst."
+  "du getragen werden willst.",
+  "du eine Gutenachtgeschichte vorgelesen bekommst.",
+  "du gefüttert wirst."
 ];
 
-const chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZ ";
+let i = 0;
+let j = 0;
+let currentText = "";
+let isDeleting = false;
 
-let current = "";
-let index = 0;
+function type() {
+  let fullText = sentences[i];
 
-function randomChar() {
-  return chars[Math.floor(Math.random() * chars.length)];
-}
-
-function createBoard(text) {
-  const board = document.getElementById("board");
-  board.innerHTML = "";
-
-  text.split("").forEach(char => {
-    const span = document.createElement("span");
-    span.className = "letter";
-    span.innerText = char;
-    board.appendChild(span);
-  });
-}
-
-function flipToText(newText) {
-  const board = document.getElementById("board");
-  const letters = board.children;
-
-  for (let i = 0; i < newText.length; i++) {
-    setTimeout(() => {
-      let span = letters[i];
-
-      if (!span) {
-        span = document.createElement("span");
-        span.className = "letter";
-        board.appendChild(span);
-      }
-
-      span.classList.add("flip");
-
-      setTimeout(() => {
-        let cycles = 0;
-
-        let interval = setInterval(() => {
-          span.innerText = randomChar();
-          cycles++;
-
-          if (cycles > 5) {
-            clearInterval(interval);
-            span.innerText = newText[i];
-            span.classList.remove("flip");
-          }
-        }, 30);
-
-      }, 100);
-
-    }, i * 80);
+  if (isDeleting) {
+    currentText = fullText.substring(0, j--);
+  } else {
+    currentText = fullText.substring(0, j++);
   }
+
+  document.getElementById("text").innerText = currentText;
+
+  let speed = isDeleting ? 40 : 80;
+
+  if (!isDeleting && j === fullText.length) {
+    setTimeout(() => isDeleting = true, 1000);
+  } else if (isDeleting && j === 0) {
+    isDeleting = false;
+    i = (i + 1) % sentences.length;
+  }
+
+  setTimeout(type, speed);
 }
 
-function loop() {
-  let next = sentences[index];
-  flipToText(next);
+type();
+</script>
 
-  index = (index + 1) % sentences.length;
-
-  setTimeout(loop, 3000);
-}
+</body>
+</html>
