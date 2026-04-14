@@ -22,29 +22,35 @@
       max-width: 900px;
       line-height: 1.4;
       letter-spacing: 1px;
+      transition: all 0.6s ease;
     }
 
-    .word {
-      display: inline-block;
+    .fade-out {
       opacity: 0;
-      transform: translateY(20px) scale(0.95);
-      margin: 0 8px;
-      font-weight: 700;
-      font-size: 58px;
-      animation: slam 0.35s ease forwards;
+      filter: blur(10px);
+      transform: scale(0.95);
     }
 
-    @keyframes slam {
-      0% {
-        opacity: 0;
-        transform: translateY(40px) scale(0.8);
-      }
-      60% {
+    .fade-in {
+      opacity: 1;
+      filter: blur(0);
+      transform: scale(1);
+    }
+
+    .statement-line {
+      display: block;
+      font-size: 60px;
+      font-weight: 700;
+      margin: 15px 0;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: rise 0.8s ease forwards;
+    }
+
+    @keyframes rise {
+      to {
         opacity: 1;
-        transform: translateY(-5px) scale(1.05);
-      }
-      100% {
-        transform: translateY(0) scale(1);
+        transform: translateY(0);
       }
     }
   </style>
@@ -52,7 +58,7 @@
 
 <body>
 
-<div id="text"></div>
+<div id="text" class="fade-in"></div>
 
 <script>
 const sentences = [
@@ -64,13 +70,9 @@ const sentences = [
 ];
 
 const statement = [
-  "man", "vergisst", "viel", "zu", "leicht,",
-  "wie", "schnell", "die", "zeit", "vergeht.",
-  "also",
-  "mach",
-  "das",
-  "beste",
-  "draus."
+  "man vergisst viel zu leicht,",
+  "wie schnell die zeit vergeht.",
+  "also mach das beste draus."
 ];
 
 let i = 0;
@@ -92,13 +94,14 @@ function typeLoop() {
   if (j < 0) j = 0;
   if (j > fullText.length) j = fullText.length;
 
-  document.getElementById("text").innerText = fullText.substring(0, j);
+  const container = document.getElementById("text");
+  container.innerText = fullText.substring(0, j);
 
-  let speed = isDeleting ? 35 : 65;
+  let speed = isDeleting ? 25 : 45;
 
   if (!isDeleting && j === fullText.length) {
-    speed = 1200;
     isDeleting = true;
+    return setTimeout(typeLoop, 600);
   }
 
   if (isDeleting && j === 0) {
@@ -106,38 +109,59 @@ function typeLoop() {
     i++;
 
     if (i >= sentences.length) {
-      mode = "pause";
-      setTimeout(startStatement, 1000);
-      return;
+      mode = "transition";
+      return transitionToStatement();
     }
   }
 
   setTimeout(typeLoop, speed);
 }
 
-function startStatement() {
-  mode = "statement";
+function transitionToStatement() {
   const container = document.getElementById("text");
-  container.innerHTML = "";
 
-  statement.forEach((word, index) => {
-    setTimeout(() => {
-      const span = document.createElement("span");
-      span.className = "word";
-      span.innerText = word;
-      container.appendChild(span);
-    }, index * 280);
-  });
+  // 🎬 Fade + Blur OUT
+  container.classList.remove("fade-in");
+  container.classList.add("fade-out");
 
-  // Pause nach Statement → dann reset
   setTimeout(() => {
     container.innerHTML = "";
-    i = 0;
-    j = 0;
-    isDeleting = false;
-    mode = "typing";
-    typeLoop();
-  }, statement.length * 280 + 2500);
+    startStatement();
+  }, 600);
+}
+
+function startStatement() {
+  const container = document.getElementById("text");
+
+  container.classList.remove("fade-out");
+  container.classList.add("fade-in");
+
+  statement.forEach((line, index) => {
+    setTimeout(() => {
+      const div = document.createElement("div");
+      div.className = "statement-line";
+      div.innerText = line;
+      container.appendChild(div);
+    }, index * 1000);
+  });
+
+  // 🔁 Zurück zum Anfang
+  setTimeout(() => {
+    container.classList.remove("fade-in");
+    container.classList.add("fade-out");
+
+    setTimeout(() => {
+      container.innerHTML = "";
+      i = 0;
+      j = 0;
+      isDeleting = false;
+      mode = "typing";
+      container.classList.remove("fade-out");
+      container.classList.add("fade-in");
+      typeLoop();
+    }, 600);
+
+  }, statement.length * 1000 + 3000);
 }
 
 // Start
